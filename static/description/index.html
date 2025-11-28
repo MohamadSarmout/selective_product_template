@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selective Product Variants - Odoo 18 Module Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header .version {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .header .tagline {
+            font-size: 1.3em;
+            font-weight: 300;
+            margin-top: 20px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .section p, .section li {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .feature-card h4 {
+            color: #667eea;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        
+        .feature-card p {
+            color: #555;
+            font-size: 1em;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 25px;
+            padding-left: 60px;
+            position: relative;
+        }
+        
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .success-box strong {
+            color: #155724;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .info-box {
+            background: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box strong {
+            color: #0c5460;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .screenshot-placeholder {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            padding: 60px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 10px;
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+        
+        .footer {
+            background: #2d2d2d;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        ul.regular-list {
+            padding-left: 30px;
+            margin: 15px 0;
+        }
+        
+        ul.regular-list li {
+            margin-bottom: 10px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .badge-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .badge-warning {
+            background: #ffc107;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎯 Selective Product Variants</h1>
+            <div class="version">Version 18.0.1.0.0</div>
+            <div class="tagline">Take Full Control Over Your Product Variant Creation</div>
+            <div style="margin-top: 20px;">
+                <span class="badge badge-success">Odoo 18</span>
+                <span class="badge badge-info">Sales</span>
+                <span class="badge badge-info">Inventory</span>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            
+            <!-- Overview Section -->
+            <div class="section">
+                <h2>📋 Overview</h2>
+                <p>
+                    <strong>Selective Product Variants</strong> is a powerful Odoo 18 module that gives you complete control over which product variants are created. 
+                    By default, Odoo automatically creates ALL possible combinations of product attributes, which can lead to hundreds of unnecessary variants. 
+                    This module allows you to specify exactly which combinations you want, saving time and keeping your product catalog clean and manageable.
+                </p>
+                
+                <div class="info-box">
+                    <strong>💡 Use Case Example</strong>
+                    <p>
+                        You sell shoes with attributes "Brand" (Nike, Adidas, Reebok) and "Color" (Red, Blue, Black). 
+                        You only want to sell Nike shoes in Red and Blue, but not Adidas Red or Reebok Red. 
+                        With this module, you can create ONLY the exact combinations you need instead of all 9 possible combinations.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="section">
+                <h2>✨ Key Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h4>🎯 Selective Variant Creation</h4>
+                        <p>Choose exactly which attribute combinations to create as product variants.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>🚫 Prevent Auto-Creation</h4>
+                        <p>Disable automatic creation of all possible variant combinations.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>✅ Smart Validation</h4>
+                        <p>Built-in validation ensures each combination has values for ALL attributes.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>🔄 Real-Time Updates</h4>
+                        <p>Variants are created/deleted automatically when you modify combinations.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>🎨 Clean Interface</h4>
+                        <p>User-friendly interface integrated seamlessly into Odoo's product form.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4>⚡ Performance Optimized</h4>
+                        <p>Reduces database bloat by creating only necessary variants.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Installation Section -->
+            <div class="section">
+                <h2>📦 Installation</h2>
+                
+                <h3>Step 1: Download the Module</h3>
+                <p>Download or clone the module files into your Odoo addons directory.</p>
+                
+                <div class="code-block">
+# Module Structure
+selective_product_variants/
+├── __init__.py
+├── __manifest__.py
+├── models/
+│   ├── __init__.py
+│   ├── product_template.py
+│   └── product_template_attribute_value.py
+├── security/
+│   └── ir.model.access.csv
+└── views/
+    └── product_template_views.xml
+                </div>
+
+                <h3>Step 2: Update Apps List</h3>
+                <ol class="step-list">
+                    <li>Go to <strong>Apps</strong> menu in Odoo</li>
+                    <li>Click on <strong>Update Apps List</strong></li>
+                    <li>Search for <strong>"Selective Product Variants"</strong></li>
+                    <li>Click <strong>Install</strong></li>
+                </ol>
+
+                <h3>Step 3: Verify Installation</h3>
+                <p>
+                    After installation, go to any product with variants. You should see a new section called 
+                    <strong>"Variant Creation Control"</strong> in the Attributes & Variants tab.
+                </p>
+            </div>
+
+            <!-- Configuration Section -->
+            <div class="section">
+                <h2>⚙️ Configuration</h2>
+                
+                <h3>Enabling Selective Variant Control</h3>
+                <ol class="step-list">
+                    <li>
+                        <strong>Navigate to Product</strong><br>
+                        Go to Sales → Products → Products and open the product you want to configure
+                    </li>
+                    
+                    <li>
+                        <strong>Go to Attributes & Variants Tab</strong><br>
+                        Click on the "Attributes & Variants" tab
+                    </li>
+                    
+                    <li>
+                        <strong>Disable Auto Creation</strong><br>
+                        Find the "Variant Creation Control" section and uncheck "Auto Create All Variants"
+                    </li>
+                    
+                    <li>
+                        <strong>Add Allowed Combinations</strong><br>
+                        Click "Add a line" under "Allowed Variant Combinations"
+                    </li>
+                    
+                    <li>
+                        <strong>Select Attribute Values</strong><br>
+                        For each combination, select ONE value from EACH attribute (e.g., Color: Red, Brand: Nike)
+                    </li>
+                    
+                    <li>
+                        <strong>Save</strong><br>
+                        Click Save - the variants will be created automatically!
+                    </li>
+                </ol>
+
+                <div class="warning-box">
+                    <strong>⚠️ Important Notes</strong>
+                    <ul class="regular-list">
+                        <li>Each combination MUST have exactly ONE value from EACH attribute</li>
+                        <li>You cannot select multiple values from the same attribute (e.g., Nike + Adidas)</li>
+                        <li>Existing variants will be deleted if they're not in your allowed combinations</li>
+                        <li>Make sure to backup your database before enabling this feature on products with existing variants</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Usage Examples Section -->
+            <div class="section">
+                <h2>💼 Usage Examples</h2>
+                
+                <h3>Example 1: Shoes with Limited Colors per Brand</h3>
+                <p><strong>Scenario:</strong> You sell shoes from Nike, Adidas, and Reebok. Each brand only comes in specific colors.</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Combination</th>
+                            <th>Color</th>
+                            <th>Brand</th>
+                            <th>Create?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Red</td>
+                            <td>Nike</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Blue</td>
+                            <td>Nike</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Black</td>
+                            <td>Adidas</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Purple</td>
+                            <td>Adidas</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td>-</td>
+                            <td>Red</td>
+                            <td>Adidas</td>
+                            <td>❌ No (not created)</td>
+                        </tr>
+                        <tr>
+                            <td>-</td>
+                            <td>Purple</td>
+                            <td>Nike</td>
+                            <td>❌ No (not created)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Example 2: T-Shirts with Size-Color Restrictions</h3>
+                <p><strong>Scenario:</strong> XL size is only available in Black, while S and M are available in all colors.</p>
+                
+                <div class="success-box">
+                    <strong>✅ Allowed Combinations:</strong>
+                    <ul class="regular-list">
+                        <li>Small + Red</li>
+                        <li>Small + Blue</li>
+                        <li>Small + Black</li>
+                        <li>Medium + Red</li>
+                        <li>Medium + Blue</li>
+                        <li>Medium + Black</li>
+                        <li>XL + Black (only)</li>
+                    </ul>
+                </div>
+
+                <div class="screenshot-placeholder">
+                    📸 Screenshot: Product form showing Allowed Variant Combinations
+                </div>
+            </div>
+
+            <!-- Technical Details Section -->
+            <div class="section">
+                <h2>🔧 Technical Details</h2>
+                
+                <h3>Module Structure</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>product.template</strong></td>
+                            <td>Extends product template with selective variant creation logic</td>
+                        </tr>
+                        <tr>
+                            <td><strong>product.allowed.variant.combination</strong></td>
+                            <td>New model to store allowed variant combinations</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Views</strong></td>
+                            <td>Custom form view additions for variant control interface</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Security</strong></td>
+                            <td>Access rights for the new combination model</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Key Methods</h3>
+                <div class="code-block">
+# Override variant creation
+def _create_variant_ids(self):
+    """Control variant creation based on allowed combinations"""
+    if self.auto_create_variants:
+        return super()._create_variant_ids()
+    else:
+        return self._create_selective_variants()
+
+# Create only selected variants
+def _create_selective_variants(self):
+    """Create only the variants specified in allowed combinations"""
+    # Creates variants based on allowed_variant_combination_ids
+    # Deletes variants not in allowed combinations
+                </div>
+
+                <h3>Database Schema</h3>
+                <p><strong>New Table:</strong> product_allowed_variant_combination</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>product_tmpl_id</td>
+                            <td>Many2one</td>
+                            <td>Link to product template</td>
+                        </tr>
+                        <tr>
+                            <td>value_ids</td>
+                            <td>Many2many</td>
+                            <td>Selected attribute values for this combination</td>
+                        </tr>
+                        <tr>
+                            <td>name</td>
+                            <td>Char (computed)</td>
+                            <td>Display name of the combination</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Validation Rules</h3>
+                <ul class="regular-list">
+                    <li>✅ Each combination must have exactly one value per attribute</li>
+                    <li>✅ Cannot select multiple values from the same attribute</li>
+                    <li>✅ All values must belong to the product's attributes</li>
+                    <li>✅ Validates on create and write operations</li>
+                </ul>
+            </div>
+
+            <!-- Troubleshooting Section -->
+            <div class="section">
+                <h2>🔍 Troubleshooting</h2>
+                
+                <h3>Common Issues</h3>
+                
+                <div class="warning-box">
+                    <strong>Issue: Smart button not updating</strong>
+                    <p><strong>Solution:</strong> Click the "Update Variants" button or refresh the page (F5)</p>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Issue: Cannot add combination - validation error</strong>
+                    <p><strong>Solution:</strong> Make sure you select ONE value from EACH attribute. Don't leave any attribute empty.</p>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Issue: Existing variants deleted after enabling</strong>
+                    <p><strong>Solution:</strong> This is expected behavior. Add all desired combinations to "Allowed Variant Combinations" before saving.</p>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Issue: Attribute values not showing in dropdown</strong>
+                    <p><strong>Solution:</strong> Make sure the product has attributes configured first in the "Attributes & Variants" tab.</p>
+                </div>
+
+                <h3>Debug Mode</h3>
+                <p>To see more technical details:</p>
+                <ol class="regular-list">
+                    <li>Enable Developer Mode: Settings → Activate Developer Mode</li>
+                    <li>Check product_variant_ids field to see created variants</li>
+                    <li>Check logs for any error messages during variant creation</li>
+                </ol>
+            </div>
+
+            <!-- FAQ Section -->
+            <div class="section">
+                <h2>❓ Frequently Asked Questions</h2>
+                
+                <h3>Q: Will this affect my existing products?</h3>
+                <p><strong>A:</strong> No, by default "Auto Create All Variants" is enabled for all products. You need to manually disable it for each product you want to control.</p>
+
+                <h3>Q: Can I enable this for some products and not others?</h3>
+                <p><strong>A:</strong> Yes! Each product has its own "Auto Create All Variants" setting. You can mix and match.</p>
+
+                <h3>Q: What happens if I add a new attribute value later?</h3>
+                <p><strong>A:</strong> You need to manually add new combinations that include the new value. They won't be created automatically.</p>
+
+                <h3>Q: Can I import combinations from CSV?</h3>
+                <p><strong>A:</strong> Not in the current version, but this feature can be added as an enhancement.</p>
+
+                <h3>Q: Does this work with eCommerce / Website?</h3>
+                <p><strong>A:</strong> Yes! Only the allowed variants will be visible and selectable on your website.</p>
+
+                <h3>Q: Will this slow down my system?</h3>
+                <p><strong>A:</strong> No, actually it can improve performance by reducing the number of variants in your database.</p>
+
+                <h3>Q: Can I bulk-edit combinations?</h3>
+                <p><strong>A:</strong> Currently, you need to add them one by one. Bulk operations can be added in future versions.</p>
+            </div>
+
+            <!-- Upgrade & Uninstall Section -->
+            <div class="section">
+                <h2>🔄 Upgrade & Uninstall</h2>
+                
+                <h3>Upgrading the Module</h3>
+                <div class="code-block">
+# Command line upgrade
+odoo-bin -u selective_product_variants -d your_database_name
+
+# Or from UI
+Apps → Search module → Upgrade
+                </div>
+
+                <h3>Uninstalling the Module</h3>
+                <div class="warning-box">
+                    <strong>⚠️ Warning: Data Loss</strong>
+                    <p>Uninstalling this module will:</p>
+                    <ul class="regular-list">
+                        <li>Delete all saved allowed combinations</li>
+                        <li>Re-enable automatic variant creation for all products</li>
+                        <li>May recreate all possible variant combinations</li>
+                    </ul>
+                    <p><strong>Backup your database before uninstalling!</strong></p>
+                </div>
+
+                <p>To uninstall:</p>
+                <ol class="regular-list">
+                    <li>Go to Apps</li>
+                    <li>Search for "Selective Product Variants"</li>
+                    <li>Click Uninstall</li>
+                    <li>Confirm the action</li>
+                </ol>
+            </div>
+
+            <!-- Version History Section -->
+            <div class="section">
+                <h2>📝 Version History</h2>
+                
+                <h3>Version 18.0.1.0.0 (Current)</h3>
+                <ul class="regular-list">
+                    <li>✅ Initial release for Odoo 18</li>
+                    <li>✅ Selective variant creation functionality</li>
+                    <li>✅ Smart validation system</li>
+                    <li>✅ Real-time variant updates</li>
+                    <li>✅ User-friendly interface</li>
+                    <li>✅ Manual "Update Variants" button</li>
+                </ul>
+            </div>
+
+            <!-- Support Section -->
+            <div class="section">
+                <h2>📞 Support & Contact</h2>
+                
+                <div class="info-box">
+                    <strong>Need Help?</strong>
+                    <p>If you encounter any issues or have questions:</p>
+                    <ul class="regular-list">
+                        <li>📧 Email: support@yourcompany.com</li>
+                        <li>🌐 Website: www.yourcompany.com</li>
+                        <li>💬 Community Forum: forum.yourcompany.com</li>
+                        <li>📚 Documentation: docs.yourcompany.com</li>
+                    </ul>
+                </div>
+
+                <h3>Feature Requests</h3>
+                <p>Have an idea for a new feature? We'd love to hear from you! Send your suggestions to: features@yourcompany.com</p>
+
+                <h3>Bug Reports</h3>
+                <p>Found a bug? Please report it with:</p>
+                <ul class="regular-list">
+                    <li>Odoo version</li>
+                    <li>Module version</li>
+                    <li>Steps to reproduce</li>
+                    <li>Error message (if any)</li>
+                    <li>Screenshots (if applicable)</li>
+                </ul>
+            </div>
+
+            <!-- License Section -->
+            <div class="section">
+                <h2>📄 License</h2>
+                <p>
+                    This module is licensed under <strong>LGPL-3</strong> (GNU Lesser General Public License v3.0)
+                </p>
+                <p>
+                    You are free to use, modify, and distribute this module according to the terms of the LGPL-3 license.
+                </p>
+            </div>
+
+            <!-- Credits Section -->
+            <div class="section">
+                <h2>👏 Credits</h2>
+                <p><strong>Author:</strong> Mo. Sarmout</p>
+                <p><strong>Contributors:</strong></p>
+                <ul class="regular-list">
+                    <li>Development Team</li>
+                    <li>QA Team</li>
+                    <li>Community Contributors</li>
+                </ul>
+                <p><strong>Special Thanks:</strong> Odoo Community for their continuous support and feedback</p>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; 2025 Mo. Sarmout. All rights reserved.</p>
+            <p>Made with ❤️ for the Odoo Community</p>
+            <p style="margin-top: 20px;">
+                <a href="#top">Back to Top ↑</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
