@@ -69,6 +69,7 @@ class ProductTemplate(models.Model):
                 'sticky': False,
             }
         }
+        
     
     def action_load_existing_variants(self):
         """Load all existing variants into allowed combinations"""
@@ -104,13 +105,14 @@ class ProductTemplate(models.Model):
         
         return {
             'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Success'),
-                'message': _('%s variant combinations have been loaded. You can now remove the ones you don\'t need.') % len(combinations_to_create),
-                'type': 'success',
-                'sticky': False,
-            }
+            # 'tag': 'display_notification',
+            'tag': 'reload',
+            # 'params': {
+            #     'title': _('Success'),
+            #     'message': _('%s variant combinations have been loaded. You can now remove the ones you don\'t need.') % len(combinations_to_create),
+            #     'type': 'success',
+            #     'sticky': False,
+            # }
         }
     
     def _auto_load_existing_combinations(self):
