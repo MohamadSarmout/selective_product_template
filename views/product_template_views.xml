@@ -1,31 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+    <!-- Product Template Form View Inherit -->
     <record id="product_template_only_form_view_inherit" model="ir.ui.view">
         <field name="name">product.template.form.inherit</field>
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_only_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//form[@name='Product Template']/sheet[@name='product_form']/notebook[1]/page[@name='variants']/p[1]" position="after">
-                <group string="Variant Creation Control">
+                <group string="Variant Creation Control" name="variant_creation_control">
                     <field name="auto_create_variants"/>
-                    <button name="action_update_variants" 
-                            string="Update Variants" 
-                            type="object" 
-                            class="btn-primary"
-                            invisible="auto_create_variants"/>
-                    <field name="allowed_variant_combination_ids" 
-                           invisible="auto_create_variants"
-                           context="{'default_product_tmpl_id': id}">
-                        <list editable="bottom">
+
+                    <div invisible="auto_create_variants" class="o_row" colspan="2">
+                        <button name="action_load_existing_variants" string="Load Existing Variants" type="object" class="btn-secondary me-2" icon="fa-download" help="Load all existing variants into the list below. You can then remove the ones you don't want."/>
+                        <button name="action_update_variants" string="Update Variants" type="object" class="btn-primary" icon="fa-refresh" help="Manually refresh variants based on the combinations below."/>
+                    </div>
+
+                    <field name="allowed_variant_combination_ids" invisible="auto_create_variants" context="{'default_product_tmpl_id': id}" colspan="2" nolabel="1">
+                        <list editable="bottom" decoration-muted="not value_ids">
                             <field name="product_tmpl_id" column_invisible="1"/>
-                            <field name="value_ids" 
-                                   widget="many2many_tags"
-                                   domain="[('product_tmpl_id', '=', parent.id)]"/>
-                            <field name="name"/>
+                            <field name="value_ids" widget="many2many_tags" domain="[('product_tmpl_id', '=', parent.id)]" placeholder="Select one value from each attribute..." options="{'color_field': 'color', 'no_create': True}"/>
+                            <field name="name" string="Combination"/>
                         </list>
                     </field>
+
                 </group>
             </xpath>
+
         </field>
     </record>
+
+    <!-- Product Allowed Variant Combination Form View -->
+    <record id="product_allowed_variant_combination_view_form" model="ir.ui.view">
+        <field name="name">product.allowed.variant.combination.view.form</field>
+        <field name="model">product.allowed.variant.combination</field>
+        <field name="arch" type="xml">
+            <form string="Allowed Variant Combination">
+                <sheet>
+                    <group>
+                        <field name="product_tmpl_id" readonly="1"/>
+                        <field name="value_ids" widget="many2many_tags" domain="[('product_tmpl_id', '=', product_tmpl_id)]"/>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Product Allowed Variant Combination list View -->
+    <record id="product_allowed_variant_combination_view_list" model="ir.ui.view">
+        <field name="name">product.allowed.variant.combination.view.list</field>
+        <field name="model">product.allowed.variant.combination</field>
+        <field name="arch" type="xml">
+            <list string="Allowed Variant Combinations">
+                <field name="product_tmpl_id"/>
+                <field name="name"/>
+                <field name="value_ids" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
 </odoo>

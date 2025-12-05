@@ -1,6 +1,8 @@
-# models/product_template.py
+# -*- coding: utf-8 -*-
+
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
@@ -19,6 +21,17 @@ class ProductTemplate(models.Model):
     
     def write(self, vals):
         """Override write to trigger variant creation when combinations change"""
+        
+        # Protection: Auto-load existing variants when switching to selective mode
+        if 'auto_create_variants' in vals:
+            for template in self:
+                # If switching from True to False (enabling selective mode)
+                if template.auto_create_variants and not vals['auto_create_variants']:
+                    # And no combinations are defined yet
+                    if not template.allowed_variant_combination_ids:
+                        # Auto-load existing variants to prevent accidental deletion
+                        template._auto_load_existing_combinations()
+        
         res = super().write(vals)
         
         # If allowed combinations changed and auto create is disabled
@@ -40,6 +53,87 @@ class ProductTemplate(models.Model):
             # Invalidate cache to update smart button
             self.invalidate_recordset(['product_variant_ids', 'product_variant_count'])
             return result
+    
+    def action_update_variants(self):
+        """Manual button to update variants"""
+        self.ensure_one()
+        self._create_selective_variants()
+        self.invalidate_recordset(['product_variant_ids', 'product_variant_count'])
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('Variants have been updated successfully.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+    
+    def action_load_existing_variants(self):
+        """Load all existing variants into allowed combinations"""
+        self.ensure_one()
+        
+        # Check if product has attributes
+        if not self.attribute_line_ids:
+            raise ValidationError(_('This product has no attributes configured.'))
+        
+        # Check if product has existing variants
+        if not self.product_variant_ids:
+            raise ValidationError(_('This product has no existing variants to load.'))
+        
+        # Get number of attributes
+        num_attributes = len(self.attribute_line_ids)
+        
+        # Clear existing allowed combinations
+        self.allowed_variant_combination_ids.unlink()
+        
+        # Create allowed combinations from existing variants
+        combinations_to_create = []
+        for variant in self.product_variant_ids:
+            # Only add variants that have complete attribute combinations
+            if len(variant.product_template_attribute_value_ids) == num_attributes:
+                combinations_to_create.append({
+                    'product_tmpl_id': self.id,
+                    'value_ids': [(6, 0, variant.product_template_attribute_value_ids.ids)],
+                })
+        
+        # Create the combinations
+        if combinations_to_create:
+            self.env['product.allowed.variant.combination'].create(combinations_to_create)
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('%s variant combinations have been loaded. You can now remove the ones you don\'t need.') % len(combinations_to_create),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+    
+    def _auto_load_existing_combinations(self):
+        """Automatically load existing variants when enabling selective mode"""
+        self.ensure_one()
+        
+        if not self.product_variant_ids:
+            return
+        
+        num_attributes = len(self.attribute_line_ids)
+        if num_attributes == 0:
+            return
+        
+        combinations_to_create = []
+        for variant in self.product_variant_ids:
+            if len(variant.product_template_attribute_value_ids) == num_attributes:
+                combinations_to_create.append({
+                    'product_tmpl_id': self.id,
+                    'value_ids': [(6, 0, variant.product_template_attribute_value_ids.ids)],
+                })
+        
+        if combinations_to_create:
+            self.env['product.allowed.variant.combination'].create(combinations_to_create)
     
     def _create_selective_variants(self):
         """Create only the variants specified in allowed combinations"""
@@ -92,26 +186,18 @@ class ProductTemplate(models.Model):
         
         return self.product_variant_ids
 
-    def action_update_variants(self):
-        """Manual button to update variants"""
-        self.ensure_one()
-        self._create_selective_variants()
-        self.invalidate_recordset(['product_variant_ids', 'product_variant_count'])
-        # Refresh the view
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
-
 
 class ProductAllowedVariantCombination(models.Model):
     _name = 'product.allowed.variant.combination'
     _description = 'Allowed Product Variant Combinations'
+    _order = 'name'
     
     product_tmpl_id = fields.Many2one(
         'product.template', 
+        string='Product Template',
         required=True, 
-        ondelete='cascade'
+        ondelete='cascade',
+        index=True
     )
     value_ids = fields.Many2many(
         'product.template.attribute.value',
@@ -121,13 +207,20 @@ class ProductAllowedVariantCombination(models.Model):
         string='Attribute Values',
         required=True
     )
-    name = fields.Char(compute='_compute_name', store=True)
+    name = fields.Char(
+        string='Combination Name',
+        compute='_compute_name', 
+        store=True
+    )
     
-    @api.depends('value_ids')
+    @api.depends('value_ids', 'value_ids.name')
     def _compute_name(self):
+        """Compute display name from attribute values"""
         for record in self:
             if record.value_ids:
-                record.name = ', '.join(record.value_ids.mapped('name'))
+                # Sort by attribute sequence for consistent display
+                sorted_values = record.value_ids.sorted(key=lambda v: (v.attribute_id.sequence, v.attribute_id.name))
+                record.name = ', '.join(sorted_values.mapped('name'))
             else:
                 record.name = ''
     
@@ -185,3 +278,25 @@ class ProductAllowedVariantCombination(models.Model):
                     _('Some selected values do not belong to this product\'s attributes.\n\n'
                       'Invalid attribute(s): %s') % (', '.join(invalid_names))
                 )
+    
+    @api.constrains('value_ids', 'product_tmpl_id')
+    def _check_duplicate_combination(self):
+        """Prevent duplicate combinations for the same product"""
+        for record in self:
+            if not record.value_ids:
+                continue
+            
+            # Search for other combinations with same values
+            value_ids_set = set(record.value_ids.ids)
+            
+            other_combinations = self.search([
+                ('product_tmpl_id', '=', record.product_tmpl_id.id),
+                ('id', '!=', record.id)
+            ])
+            
+            for other in other_combinations:
+                if set(other.value_ids.ids) == value_ids_set:
+                    raise ValidationError(
+                        _('This combination already exists for this product.\n\n'
+                          'Duplicate: %s') % record.name
+                    )
