@@ -1,7 +1,7 @@
 # __manifest__.py
 {
     'name': 'Selective Product Variants',
-    'version': '18.0.1.0.0',
+    'version': '19.0.1.0.0',
     'category': 'Sales',
     'summary': 'Control which product variants are created',
     'description': """
